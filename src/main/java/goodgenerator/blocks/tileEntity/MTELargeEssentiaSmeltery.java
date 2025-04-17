@@ -528,6 +528,23 @@ public class MTELargeEssentiaSmeltery extends MTETooltipMultiBlockBaseEM
     }
 
     @Override
+    protected boolean mufflerPollutionCheck(MTEHatchMuffler muffler, int pollutionAmount) {
+        if (muffler.polluteEnvironment(this, pollutionAmount)) {
+            mPollution -= pollutionAmount;
+            return true;
+        } else {
+            // exception for flux gas; it shouldn't block pollution output
+            if (muffler.getBaseMetaTileEntity()
+                .getBlockAtSide(getBaseMetaTileEntity().getFrontFacing()) == ConfigBlocks.blockFluxGas) {
+                mPollution -= pollutionAmount;
+                return true;
+            }
+            // Muffler blocked. Fail.
+            return false;
+        }
+    }
+
+    @Override
     public boolean onRunningTick(ItemStack aStack) {
         this.nodePurificationEfficiency = Math.max(0, this.nodePurificationEfficiency - 1);
         if (xstr.nextInt(20) == 0) {

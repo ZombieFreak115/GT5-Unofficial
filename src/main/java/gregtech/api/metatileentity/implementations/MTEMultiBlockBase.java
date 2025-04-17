@@ -777,12 +777,7 @@ public abstract class MTEMultiBlockBase extends MetaTileEntity
                 mMufflerHatches.remove(0);
                 return false;
             } else {
-                if (muffler.polluteEnvironment(this, VENT_AMOUNT)) {
-                    mPollution -= VENT_AMOUNT;
-                } else {
-                    // Muffler blocked. Fail.
-                    return false;
-                }
+                return mufflerPollutionCheck(muffler, VENT_AMOUNT);
             }
         } else {
             // Multiple mufflers, split pollution output evenly between all of them.
@@ -798,15 +793,21 @@ public abstract class MTEMultiBlockBase extends MetaTileEntity
             ventAmount /= mufflerCount;
 
             for (MTEHatchMuffler muffler : validMTEList(mMufflerHatches)) {
-                if (muffler.polluteEnvironment(this, ventAmount)) {
-                    mPollution -= ventAmount;
-                } else {
-                    // Muffler blocked. Fail.
-                    return false;
-                }
+                return mufflerPollutionCheck(muffler, ventAmount);
             }
         }
         return mPollution < VENT_AMOUNT;
+    }
+
+    // protected method for updating pollution from a muffler, and checking if the muffler is blocked by something.
+    protected boolean mufflerPollutionCheck(MTEHatchMuffler muffler, int pollutionAmount) {
+        if (muffler.polluteEnvironment(this, pollutionAmount)) {
+            mPollution -= pollutionAmount;
+            return true;
+        } else {
+            // Muffler blocked. Fail.
+            return false;
+        }
     }
 
     /**
